@@ -348,7 +348,7 @@ while True:
         attitude_current = RSSIneedatt(attitude_current)
         LLHMSGA = ''.join([longitude,latitude,high,attitude])
         TIMEMSG = getime()
-        print(TIMEMSG)
+        #print(TIMEMSG)
         #payload3ATD = '1A1B1C1D'
         checksum2 = '0000'
         TXTMSG1 =''.join([magic,lenstart2,seq_hex,sysid,compid,msgid,payload1time,payload2GPS,attitude_current,checksum2])
@@ -390,18 +390,24 @@ while True:
                     except: #--则将其作为字符串输出
                         n =t.write(bytes(TXTMSG2,encoding='utf-8'))
                         flag_jump = 0
-                    
-                    time.sleep(1)     #sleep() 与 inWaiting() 最好配对使用
-                    num = t.inWaiting() 
-                    if num:
-                        data1= str(binascii.b2a_hex(t.read(num)))[2:-1]
-                        if data1.startswith('99'):
-                            flag_RSSI = 0
-                            flag_main = True
-                            print('quit now')
-                        else:
-                            #print('one')  
-                            pass
+            except: #--则将其作为字符串读取
+                str = t.read(num) 
+                hexShow(str)
+        serial.Serial.close(t)
+        t = serial.Serial('/dev/zigbeecom',115200)
+        print('wait for deny')
+        time.sleep(1)     #sleep() 与 inWaiting() 最好配对使用
+        num = t.inWaiting() 
+        if num:
+            data1= str(binascii.b2a_hex(t.read(num)))[2:-1]
+            data1 = data1[30:]
+            if data1.startswith('99'):
+                flag_RSSI = 0
+                flag_main = True
+                print('quit now')
+            else:
+                print('11111111111111111111111111111111111111111111111111111')  
+                pass
                     #serial.Serial.close(t)
         #else:
             #print('RSSI bad')
@@ -416,14 +422,12 @@ while True:
                # else:
                #     print('two')
                            
-                print(data)
-                print('\n')
-                flag_jump = 1
-            except: #--则将其作为字符串读取
-                str = t.read(num) 
-                hexShow(str)
+        #print(data)
+        #print('\n')
+        flag_jump = 1
             
-        serial.Serial.close(t)
+            
+        #serial.Serial.close(t)
     
     #获取飞机各项信息
     while flag_GPS:
